@@ -31,6 +31,7 @@ let chunk;
 let type;
 let arg;
 let argType;
+let option;
 let err;
 
 GL.addEventListener("loadEnd", () => {
