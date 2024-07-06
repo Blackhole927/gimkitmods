@@ -6,6 +6,8 @@ To add CommandLine to your mod, simply add the following to your plugin headers:
 
 `@needsLib CommandLine | https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/libraries/CommandLine/CommandLine.js`
 
+Then, place the following line of code at the top of your file: `let CommandLine = GL.lib("CommandLine")`
+
 After you've done this, you'll be able use the following functinons to add, edit, and remove commands.
 
 ## CommandLine.addCommand(name, args, func)
