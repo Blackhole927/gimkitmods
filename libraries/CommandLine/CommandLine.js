@@ -3,6 +3,7 @@
 * @description A simple slash-command ui/system inspired by Minecraft.
 * @author Blackhole927
 * @isLibrary true
+* @version 0.0.1
 */
 
 let commandlineOpen = false;
@@ -33,6 +34,8 @@ let arg;
 let argType;
 let option;
 let err;
+let suggestorScroll = 0;
+let trueSuggestorLength = 0;
 
 GL.addEventListener("loadEnd", () => {
     // this solution is actually hilarious vvv
@@ -141,24 +144,26 @@ GL.addEventListener("loadEnd", () => {
         commandlineOpen = true;
         textValue = "/"
         suggestor.style.color = "#fff";
-
+        suggestorScroll = 0;
+    
         // config suggestor
         suggestion = Object.keys(commands).sort()
         suggestorHighlightVertical = 0
+        trueSuggestorLength = suggestion.length;
         if (suggestion.length > 5) {suggestion = suggestion.slice(0, 5)}
         for (i=0;i<suggestion.length;i++) {suggestion[i] = suggestion[i].slice(1, suggestion[i.length])}
         suggestor.innerHTML = suggestion.join("<br>")
         suggestor.style.left = "3.2rem"
         suggestorHighlight.style.left = "3.2rem"
         suggestorGhost.value = "/"
-
+    
         if (suggestorHighlightVertical < 0) {suggestorHighlightVertical = 0}
         if (suggestorHighlightVertical > suggestion.length-1) {suggestorHighlightVertical = suggestion.length-1}
         suggestorHighlight.innerHTML = suggestion[0+suggestorHighlightVertical] + "<br>".repeat(suggestion.length-suggestorHighlightVertical)
         if (suggestorHighlight.innerHTML == "undefined") {
             suggestorHighlight.innerHTML = ""
         }
-
+    
         //clear errors
         clearError()
     }
@@ -184,6 +189,16 @@ GL.addEventListener("loadEnd", () => {
             disableCommandline();
         }
     });
+
+    // suggestor scroll detector
+    addEventListener("wheel", (event) => {
+        if (commandlineOpen) {
+            suggestorHighlightVertical += event.deltaY/Math.abs(event.deltaY)
+            updateSuggestor(event, true)
+        }
+    });
+
+
     // enter, update suggestor, and disable shortcuts 
     suggestorHighlightVertical = 0
     textInput.addEventListener('keydown', (event) => {
@@ -253,14 +268,17 @@ GL.addEventListener("loadEnd", () => {
         }
     });
     // handle the suggestor
-    function updateSuggestor(event) {
+    function updateSuggestor(event, scrolling=false) {
         try {
             output = [];
             textValue = textInput.value;
-            if (event.key == "Backspace") {textValue = textInput.value.slice(0, textInput.value.length-1)};
-            textValue += (event.key.length == 1 ? event.key : "")
+            if (!scrolling) {
+                if (event.key == "Backspace") {textValue = textInput.value.slice(0, textInput.value.length-1)};
+                textValue += (event.key.length == 1 ? event.key : "")
+            }
+            
             dontSort = false;
-
+    
             if (textValue.split(" ").length - 1 == 0) {
                 commandName = textValue.split(" ")[0];
                 for (command in commands) {
@@ -271,7 +289,7 @@ GL.addEventListener("loadEnd", () => {
             } else {
                 argumentData = commands[textValue.split(" ")[0]][0]
                 currentArgument = textValue.split(" ").length - 2
-
+    
                 argName = Object.keys(argumentData[currentArgument])[0]
                 if (Array.isArray(argumentData[currentArgument][argName])) {
                     //autocomplete for custom options
@@ -287,14 +305,16 @@ GL.addEventListener("loadEnd", () => {
                     argName = "\<​" + argumentData[currentArgument][argName].replace("string", "text") + "\>"
                     output = [argName]
                 }
-
+    
             }
-
+    
+            // suggestor content
             if (dontSort) {suggestion = output}
             else {suggestion = output.sort();}
-            if (suggestion.length > 5) {suggestion = suggestion.slice(0, 5);};
+            trueSuggestorLength = suggestion.length;
+            if (suggestion.length > 5) {suggestion = suggestion.slice(0+suggestorScroll, 5+suggestorScroll);};
             suggestor.innerHTML = suggestion.join("<br>");
-
+    
             // position the suggestor stuff
             position = textValue
             position = position.split(" ");
@@ -303,16 +323,38 @@ GL.addEventListener("loadEnd", () => {
             suggestorWidth.innerHTML = position;
             suggestor.style.left = (suggestorWidth.offsetWidth*0.0625*(4/2.5) + "rem")
             suggestorHighlight.style.left = (suggestorWidth.offsetWidth*0.0625*(4/2.5) + "rem")
-
-
+            
+    
+            // suggestor scroll
+            if (suggestorHighlightVertical > suggestion.length-1) {
+                suggestorHighlightVertical = suggestion.length-1
+                if (suggestorScroll < trueSuggestorLength - 5) {
+                    suggestorScroll += 1;
+                }
+            }
+    
+            if (suggestorHighlightVertical < 0) {
+                suggestorHighlightVertical = 0;
+                if (suggestorScroll > 0) {
+                    suggestorScroll -= 1;
+                }
+            }
+    
+            //suggestor content
+            if (dontSort) {suggestion = output}
+            else {suggestion = output.sort();}
+            trueSuggestorLength = suggestion.length;
+            if (suggestion.length > 5) {suggestion = suggestion.slice(0+suggestorScroll, 5+suggestorScroll);};
+            suggestor.innerHTML = suggestion.join("<br>");
+    
+    
+    
             //update suggestorHighlight
-            if (suggestorHighlightVertical < 0) {suggestorHighlightVertical = 0}
-            if (suggestorHighlightVertical > suggestion.length-1) {suggestorHighlightVertical = suggestion.length-1}
             suggestorHighlight.innerHTML = suggestion[0+suggestorHighlightVertical] + "<br>".repeat(suggestion.length-suggestorHighlightVertical)
             if (suggestorHighlight.innerHTML == "undefined") {
                 suggestorHighlight.innerHTML = ""
             }
-
+    
             //update suggestorGhost
             suggestion = suggestion[0+suggestorHighlightVertical]
             currentText = textValue.split(" ")
