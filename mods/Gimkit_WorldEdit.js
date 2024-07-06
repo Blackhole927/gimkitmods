@@ -2,6 +2,7 @@
 * @name Gimkit WorldEdit
 * @description A mod designed to make building in GKC a bit easier!
 * @author Blackhole927
+* @downloadUrl https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/mods/Gimkit_WorldEdit.js
 * @needsLib CommandLine | https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/libraries/CommandLine/CommandLine.js
 */
 
@@ -32,8 +33,9 @@ GL.addEventListener("loadEnd", () => {
         let charset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-";
         let nanoID = ""
         for (let i=0;i<21;i++) {
-            nanoID += charset[Math.round(Math.random()*charset.length)]
+            nanoID += charset[Math.round(charset.length-1)]
         }
+        
         return nanoID;
     }
 
