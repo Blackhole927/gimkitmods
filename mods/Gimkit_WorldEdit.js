@@ -33,7 +33,7 @@ GL.addEventListener("loadEnd", () => {
         let charset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-";
         let nanoID = ""
         for (let i=0;i<21;i++) {
-            nanoID += charset[Math.round(Math.random()*charset.length-1)]
+            nanoID += charset[Math.round(Math.random()*(charset.length-1))]
         }
         return nanoID;
     }
