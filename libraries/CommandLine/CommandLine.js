@@ -4,7 +4,7 @@
 * @author Blackhole927
 * @isLibrary true
 * @downloadUrl https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/libraries/CommandLine/CommandLine.js
-* @version 0.0.1
+* @version 0.0.2
 */
 
 let commandlineOpen = false;
