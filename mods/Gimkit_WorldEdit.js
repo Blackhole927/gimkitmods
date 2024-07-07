@@ -4,19 +4,13 @@
 * @author Blackhole927
 * @downloadUrl https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/mods/Gimkit_WorldEdit.js
 * @needsLib CommandLine | https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/libraries/CommandLine/CommandLine.js
+* @version 0.0.2
 */
 
 let CommandLine = GL.lib("CommandLine")
 let err;
 
 /*
-CommandLine.addCommand(
-    "speed",
-    [{"speedValue" : "number"}],
-    (number) => {
-        window.stores.me.movementSpeed = 310*number
-    }
-)
 
 CommandLine.addCommand(
     "tcollision",
@@ -49,15 +43,19 @@ GL.addEventListener("loadEnd", () => {
         }
         window.stores.network.room.send("PLACE_DEVICE", data)
     }
-    let deviceOptions = {}
-    for (let device of Array.from(window.stores.worldOptions.deviceOptions)) {
-        let data = Array.from(device.optionSchema.options)
-        let newData = {}
-        for (let option of data) {
-            newData[option.key] = option.option.defaultValue
+    function resetDeviceOptions() {
+        for (let device of Array.from(window.stores.worldOptions.deviceOptions)) {
+            let data = Array.from(device.optionSchema.options)
+            let newData = {}
+            for (let option of data) {
+                newData[option.key] = option.option.defaultValue
+            }
+            deviceOptions[device.id] = newData
         }
-        deviceOptions[device.id] = newData
     }
+    let deviceOptions = {}
+    resetDeviceOptions()
+    
 
     //STACK
     CommandLine.addCommand(
@@ -271,6 +269,28 @@ GL.addEventListener("loadEnd", () => {
         [{"speedValue" : "number"}],
         (number) => {
             window.stores.me.movementSpeed = 310*number
+        }
+    )
+
+    //i
+    let deviceNames = {}
+    for (let device of Array.from(window.stores.worldOptions.deviceOptions)) {
+        if (device.minimumRoleLevel != 90 && device.initialMemoryCost > 0) {
+            deviceNames[device.name.replaceAll(" ", "_").toLowerCase()] = device.id
+        }
+    }
+    CommandLine.addCommand(
+        "/i",
+        [{"device name": Object.keys(deviceNames)}],
+        (deviceName) => {
+            let phaser = window.stores.phaser
+            resetDeviceOptions()
+            placeDevice(
+                deviceNames[deviceName],
+                phaser.mainCharacter.body.x,
+                phaser.mainCharacter.body.y - 100,
+                1000
+            )
         }
     )
 })
