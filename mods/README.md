@@ -15,3 +15,6 @@ Set your player's speed in the editor to an amount. Can be any number!
 
 ## /stack direction amount spacing
 Copy-paste the selection in a **direction** (right/left/up/down) an **amount** of times with a **spacing** (in tiles) between the copy-pastes.
+
+## /i deviceName
+Place the device specified in the **deviceName** argument.
