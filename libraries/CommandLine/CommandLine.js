@@ -10,6 +10,7 @@
 let commandlineOpen = false;
 let commandlineTrigger = "/";
 let commands = {};
+let onCommandLineOpenFunctions = {};
 let textValue = "/";
 
 let suggestorHighlightVertical = 0
@@ -165,6 +166,11 @@ GL.addEventListener("loadEnd", () => {
             suggestorHighlight.innerHTML = ""
         }
     
+        // run onCommandLineOpenFunctions
+        for (let f of Object.values(onCommandLineOpenFunctions)) {
+            f();
+        }
+    
         //clear errors
         clearError()
     }
@@ -183,7 +189,6 @@ GL.addEventListener("loadEnd", () => {
     // open / close
     document.addEventListener('keydown', (event) => {
         if (event.key === commandlineTrigger) {
-            enableCommandline();
             setTimeout(enableCommandline,11)
         }
         if (event.key === "Escape") {
@@ -481,7 +486,7 @@ export function displayNotification(placement, title, description, type, duratio
 }
 
 // add a command to the commandline
-export function addCommand(commandName, argData, func) {
+export function addCommand(commandName, argData, func, onOpenFunction=null) {
     if (commandName[0] != "/") {commandName = "/" + commandName;};
 
     if (commandName == "/") {
@@ -509,11 +514,15 @@ export function addCommand(commandName, argData, func) {
         return;
     }
 
+    if (typeof(onOpenFunction) == 'function') {
+        onCommandLineOpenFunctions[commandName] = onOpenFunction;
+    }
+
     commands[commandName] = [argData, func];
 }
 
 // edit one of the commands that already exists
-export function editCommand(commandName, argData=null, func=null) {
+export function editCommand(commandName, argData=null, func=null, onOpenFunction=null) {
     if (commandName[0] != "/") {commandName = "/" + commandName;};
 
     //update the arguments if new ones are provided
@@ -540,6 +549,10 @@ export function editCommand(commandName, argData=null, func=null) {
         }
         commands[commandName][1] = func
     }
+
+    if (typeof(onOpenFunction) == 'function') {
+        onCommandLineOpenFunctions[commandName] = onOpenFunction;
+    }
 }
 
 // remove one of the commands
@@ -547,4 +560,5 @@ export function removeCommand(commandName) {
     if (commandName[0] != "/") {commandName = "/" + commandName;};
 
     delete commands[commandName];
+    delete onCommandLineOpenFunctions[commandName];
 }
