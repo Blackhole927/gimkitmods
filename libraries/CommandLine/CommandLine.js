@@ -40,6 +40,7 @@ let suggestorScroll = 0;
 let trueSuggestorLength = 0;
 
 GL.addEventListener("loadEnd", () => {
+    commandlineOpen = false;
     // this solution is actually hilarious vvv
     document.body.style.backgroundColor = "#000";
     let game = document.getElementById("root");
@@ -241,17 +242,6 @@ GL.addEventListener("loadEnd", () => {
                 event.preventDefault();
                 suggestorHighlightVertical += 1
             }
-        } else {
-            // fix bug
-            // its 3 am i cant find a better solution
-            // sorry
-            setTimeout(()=> {
-                suggestorGhost.value = "";
-                suggestorHighlight.innerHTML = "";
-                suggestor.innerHTML = ""
-                disableCommandline()
-            },10)
-            
         }
         //suggestor tab
         if (commandlineOpen) {
@@ -262,10 +252,11 @@ GL.addEventListener("loadEnd", () => {
         }
 
         //update suggestor
-        updateSuggestor(event)
-        //handle errors
-        handleErrors(event)
-
+        if (commandlineOpen) {
+            updateSuggestor(event)
+            //handle errors
+            handleErrors(event)
+        }
 
         // stop gimkit's shortcuts
         if (commandlineOpen) {
@@ -397,7 +388,7 @@ GL.addEventListener("loadEnd", () => {
         errors = 0
 
         if (!Object.keys(commands).includes(chunks[0])) {
-            if (suggestorHighlight.innerHTML == "undefined<br>") {
+            if (suggestorHighlight.innerHTML == "") {
                 liveError("Error: Command '" + chunks[0] + "' does not exist.")
                 errors += 1
             }
@@ -425,7 +416,7 @@ GL.addEventListener("loadEnd", () => {
                         }
                     }
                     if (Array.isArray(type)) {
-                        if (suggestorHighlight.innerHTML == "undefined<br>") {
+                        if (suggestorHighlight.innerHTML == "") {
                             liveError("Error: '" + chunk + "' is not a valid option here.")
                             errors += 1
                         }
@@ -433,7 +424,7 @@ GL.addEventListener("loadEnd", () => {
                     i += 1
                 }
             }
-        } catch(err) {
+        } catch {
             //this is just to stop errors from popping up with the /command hasn't been fully typed yet
         }
         try {
@@ -452,12 +443,14 @@ GL.addEventListener("loadEnd", () => {
     }
     // displaylive errors
     function liveError(error) {
-        suggestor.style.opacity = 1;
-        suggestorGhost.style.opacity = 0;
-        suggestorHighlight.style.opacity = 0;
-
-        suggestor.style.color = "#ff2424";
-        suggestor.innerHTML = error;
+        if (commandlineOpen) {
+            suggestor.style.opacity = 1;
+            suggestorGhost.style.opacity = 0;
+            suggestorHighlight.style.opacity = 0;
+    
+            suggestor.style.color = "#ff2424";
+            suggestor.innerHTML = error;
+        }
     }
     function clearError() {
         suggestor.style.opacity = 1;
