@@ -18,3 +18,12 @@ Copy-paste the selection in a **direction** (right/left/up/down) an **amount** o
 
 ## /i deviceName
 Place the device specified in the **deviceName** argument.
+
+## /selectfilter deviceName
+Removes all devices except the device specified from the currently selected devices. (Not delete, just deselect).
+
+##  /zoom to
+Sets your zoom to an amount. Smaller numbers = bigger zoom. Only processed numbers from 0.3 to 4.
+
+## /tp to
+Teleport to another player in the editor!
