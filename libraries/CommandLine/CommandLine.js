@@ -4,13 +4,14 @@
 * @author Blackhole927
 * @isLibrary true
 * @downloadUrl https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/libraries/CommandLine/CommandLine.js
-* @version 0.0.2
+* @version 0.0.3
 */
 
 let commandlineOpen = false;
 let commandlineTrigger = "/";
 let commands = {};
 let onCommandLineOpenFunctions = {};
+let onCommandInputFunctions = {};
 let textValue = "/";
 
 let suggestorHighlightVertical = 0
@@ -209,25 +210,27 @@ GL.addEventListener("loadEnd", () => {
     // enter, update suggestor, and disable shortcuts 
     suggestorHighlightVertical = 0
     textInput.addEventListener('keydown', (event) => {
-        if (event.key === "Enter") {
-            setTimeout(disableCommandline,30)
-            //process command
-            data = textInput.value.split(" ");
-            commandName = data[0]
-            if (errors > 0) {
-                error(suggestor.innerHTML);
-            } else {
-                data.shift()
-
-                if (!commands.hasOwnProperty(commandName)) {
-                    error("Command does not exist");
-                    return;
+        if (commandlineOpen) {
+            if (event.key === "Enter") {
+                setTimeout(disableCommandline,30)
+                //process command
+                data = textInput.value.split(" ");
+                commandName = data[0]
+                if (errors > 0) {
+                    error(suggestor.innerHTML);
+                } else {
+                    data.shift()
+    
+                    if (!commands.hasOwnProperty(commandName)) {
+                        error("Command does not exist");
+                        return;
+                    }
+                    if (data.length != commands[commandName][0].length) {
+                        error("Wrong number of arguments");
+                        return;
+                    }
+                    commands[commandName][1](...data)
                 }
-                if (data.length != commands[commandName][0].length) {
-                    error("Wrong number of arguments");
-                    return;
-                }
-                commands[commandName][1](...data)
             }
         }
         if (event.key === "Escape") {
@@ -241,6 +244,10 @@ GL.addEventListener("loadEnd", () => {
             if (event.key == "ArrowDown") {
                 event.preventDefault();
                 suggestorHighlightVertical += 1
+            }
+            //run onCommandInputFunctions
+            for (let f of Object.values(onCommandInputFunctions)) {
+                f();
             }
         }
         //suggestor tab
@@ -464,6 +471,8 @@ GL.addEventListener("loadEnd", () => {
     function error(errorMessage) {
         displayNotification("topRight", "Error", errorMessage, "error", "10")
     }
+
+    
 });
 
 //notif function
@@ -479,7 +488,7 @@ export function displayNotification(placement, title, description, type, duratio
 }
 
 // add a command to the commandline
-export function addCommand(commandName, argData, func, onOpenFunction=null) {
+export function addCommand(commandName, argData, func, onOpenFunction=null, onCommandInput=null) {
     if (commandName[0] != "/") {commandName = "/" + commandName;};
 
     if (commandName == "/") {
@@ -511,11 +520,15 @@ export function addCommand(commandName, argData, func, onOpenFunction=null) {
         onCommandLineOpenFunctions[commandName] = onOpenFunction;
     }
 
+    if (typeof(onCommandInput) == 'function') {
+        onCommandInputFunctions[commandName] = onCommandInput;
+    }
+
     commands[commandName] = [argData, func];
 }
 
 // edit one of the commands that already exists
-export function editCommand(commandName, argData=null, func=null, onOpenFunction=null) {
+export function editCommand(commandName, argData=null, func=null, onOpenFunction=null, onCommandInput=null) {
     if (commandName[0] != "/") {commandName = "/" + commandName;};
 
     //update the arguments if new ones are provided
@@ -546,6 +559,10 @@ export function editCommand(commandName, argData=null, func=null, onOpenFunction
     if (typeof(onOpenFunction) == 'function') {
         onCommandLineOpenFunctions[commandName] = onOpenFunction;
     }
+
+    if (typeof(onCommandInput) == 'function') {
+        onCommandInputFunctions[commandName] = onCommandInput;
+    }
 }
 
 // remove one of the commands
@@ -554,4 +571,5 @@ export function removeCommand(commandName) {
 
     delete commands[commandName];
     delete onCommandLineOpenFunctions[commandName];
+    delete onCommandInputFunctions[commandName];
 }
