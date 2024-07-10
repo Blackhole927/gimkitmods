@@ -272,7 +272,7 @@ GL.addEventListener("loadEnd", () => {
         }
     )
 
-    //i
+    //i (my favorite command)
     let deviceNames = {}
     for (let device of Array.from(window.stores.worldOptions.deviceOptions)) {
         if (device.minimumRoleLevel != 90 && device.initialMemoryCost > 0) {
@@ -291,6 +291,142 @@ GL.addEventListener("loadEnd", () => {
                 phaser.mainCharacter.body.y - 100,
                 1000
             )
+        }
+    )
+
+    /*
+    //ATTRIBUTE
+    CommandLine.addCommand(
+        "/attribute",
+        [
+            {"attribute" : []},
+            {"value" : "string"}
+        ],
+        (attribute, value) => {
+            console.log(attribute);
+            console.log(value);
+        },
+        () => {
+            let phaser = window.stores.phaser
+            let selection = phaser.scene.actionManager.multiselect.selectedDevices
+            let deviceID = selection[0].deviceOption.id
+            let canRun = true;
+            for (let device of selection) {
+                if (device.deviceOption.id != deviceID) {
+                    canRun = false;
+                }
+            }
+
+            let optionsForThisDevice = []
+            if (canRun) {
+                for (let option of selection[0].deviceOption.optionSchema.options) {
+                    optionsForThisDevice.push(option.option.label.replaceAll(" ", "_"))
+                }
+                console.log(deviceOptions)
+            }
+
+            CommandLine.editCommand(
+                "/attribute",
+                [
+                    {"attribute" : optionsForThisDevice},
+                    {"value" : "string"}
+                ]
+            )
+        },
+        (textValue)=>{
+            if (textValue.length > 2) {
+                let deviceOptionSelected = textValue.split(" ")[1];
+            }
+        }
+    )
+    */
+
+    //SELECTFILTER
+    CommandLine.addCommand(
+        "/selectfilter",
+        [{"device" : Object.keys(deviceNames).concat(["prop"])}],
+        (deviceID) => {
+            if (deviceID != "prop") {deviceID = deviceNames[deviceID]}
+            let filter = deviceID
+            let phaser = window.stores.phaser;
+            let selection = phaser.scene.actionManager.multiselect.selectedDevices;
+            let newSelection = []
+            for (let i=0;i<selection.length;i++) {
+                if (selection[i].deviceOption.id == filter) {
+                    newSelection.push(selection[i])
+                }
+            }
+
+            phaser.scene.actionManager.multiselect.selectedDevices = newSelection;
+
+
+            phaser.scene.actionManager.multiselect.updateSelectedDevicesOverlay()
+        }
+    )
+
+    //ZOOM
+    CommandLine.addCommand(
+        "/zoom",
+        [{"to":"number"}],
+        (amount)=> {
+            if (amount < 0.3){amount = 0.3}
+            if (amount > 4){amount = 4}
+            window.stores.phaser.scene.cameras.cameras[0].setZoom(parseFloat(amount))
+        }
+    )
+
+    //TP
+    CommandLine.addCommand(
+        "/tp",
+        [{"to" : []}],
+        (player) => {
+            let name = player.replaceAll("_", " ")
+            let x = 0
+            let y = 0
+            for (let character of Array.from(window.stores.phaser.scene.characterManager.characters)) {
+                if (character[1].nametag.name == name) {
+                    x = character[1].body.x
+                    y = character[1].body.y
+                }
+            }
+            // no, this does not work in game lmao
+            window.stores.phaser.mainCharacter.physics.setServerPosition({
+                teleport: true,
+                x: x,
+                y: y,
+                packet: 1,
+                jsonState: {
+                    "gravity": 0,
+                    "velocity": {
+                        "x": 0,
+                        "y": 0.257999986410141
+                    },
+                    "movement": {
+                        "direction": "none",
+                        "xVelocity": 0,
+                        "accelerationTicks": 0
+                    },
+                    "jump": {
+                        "isJumping": false,
+                        "jumpsLeft": 1,
+                        "jumpCounter": 0,
+                        "jumpTicks": 0,
+                        "xVelocityAtJumpStart": 0
+                    },
+                    "forces": [],
+                    "grounded": false,
+                    "groundedTicks": 0,
+                    "lastGroundedAngle": 0
+                }
+            })
+        },
+        ()=>{
+            let playerNames = [];
+            for (let character of Array.from(window.stores.phaser.scene.characterManager.characters)) {
+                playerNames.push(character[1].nametag.name.replaceAll(" ", "_"))
+            }
+            
+            CommandLine.editCommand("/tp", [{"to" : playerNames}])
         }
     )
 })
