@@ -4,7 +4,7 @@
 * @author Blackhole927
 * @downloadUrl https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/mods/Gimkit_WorldEdit.js
 * @needsLib CommandLine | https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/libraries/CommandLine/CommandLine.js
-* @version 0.0.3
+* @version 0.0.4
 */
 
 let CommandLine = GL.lib("CommandLine")
@@ -55,7 +55,79 @@ GL.addEventListener("loadEnd", () => {
     }
     let deviceOptions = {}
     resetDeviceOptions()
+
+    //see all of the messages the client sends
+    const sendMessage = window.stores.network.room.send.bind(window.stores.network.room)
+    window.stores.network.room.send = (t, n) => {
+        onMessage(t,n)
+        sendMessage(t,n)
+    }
+
+    let copiedDeviceChunk = []
+    let mainCopiedDeviceID = ""
+    let selection = []
+    let IDMAP = {}
+    let wires = []
+
+    function onMessage(t,n) {
+        if (t == "PLACE_DEVICE") {
+            if (n.copyingFromExistingDevice != undefined) {
+                // if the copyingFromExistingDevice ID is different, it must be a new selection we're copying.
+                if (n.copyingFromExistingDevice != mainCopiedDeviceID) {
+                    copiedDeviceChunk = []
+                    mainCopiedDeviceID = n.copyingFromExistingDevice
+                    selection = window.stores.phaser.scene.actionManager.multiselect.selectedDevices
+                    IDMAP = {}
+                    wires = []
+                }
     
+                // add the device id we just copied to the copied device chunk
+                copiedDeviceChunk.push(n.id)
+    
+                // when we're done copying the selection
+                if (selection.length == copiedDeviceChunk.length) {
+    
+                    // link the old devices with the new ones
+                    for (let i=0; i<selection.length; i++) {
+                        IDMAP[selection[i].id] = copiedDeviceChunk[i]
+                        mainCopiedDeviceID = ""
+                    }
+    
+                    // generate a wire map of the old devices
+                    for (let wire of window.stores.phaser.scene.worldManager.wires.wires) {
+                        let device1 = wire[0].slice(0, 21)
+                        let device2 = wire[0].slice(22, 43)
+                    
+                        // are both devices in the selection
+                        if (Object.keys(IDMAP).includes(device1) && Object.keys(IDMAP).includes(device1)) {
+                            // get the wire info
+                            wires.push({
+                                startDevice:device1,
+                                endDevice:device2,
+                                startConnection: wire[1].startConnection,
+                                endConnection: wire[1].endConnection,
+                            })
+                        }
+                    }
+    
+                    // place wires
+                    for (let wire of wires) {
+                        let wireData = {
+                            startDevice: IDMAP[wire.startDevice],
+                            endDevice: IDMAP[wire.endDevice],
+                            startConnection: wire.startConnection,
+                            endConnection: wire.endConnection,
+                        }
+                    
+                        setTimeout(()=>{
+                            window.stores.network.room.send("PLACE_WIRE", wireData)
+                        },100)
+                    }
+                    
+                }
+            }
+        }
+    }
 
     //STACK
     CommandLine.addCommand(
