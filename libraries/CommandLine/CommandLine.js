@@ -4,7 +4,7 @@
 * @author Blackhole927
 * @isLibrary true
 * @downloadUrl https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/libraries/CommandLine/CommandLine.js
-* @version 0.0.3
+* @version 0.0.2
 */
 
 let commandlineOpen = false;
@@ -190,11 +190,13 @@ GL.addEventListener("loadEnd", () => {
 
     // open / close
     document.addEventListener('keydown', (event) => {
-        if (event.key === commandlineTrigger) {
-            setTimeout(enableCommandline,11)
-        }
-        if (event.key === "Escape") {
-            disableCommandline();
+        if  (GL.stores != undefined) {
+            if (event.key === commandlineTrigger) {
+                setTimeout(enableCommandline,11)
+            }
+            if (event.key === "Escape") {
+                disableCommandline();
+            }
         }
     });
 
