@@ -1,10 +1,10 @@
 /**
 * @name Gimkit WorldEdit
-* @description A mod designed to make building in GKC a bit easier!
+* @description A mod designed to make building in GKC easier!
 * @author Blackhole927
 * @downloadUrl https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/mods/Gimkit_WorldEdit.js
 * @needsLib CommandLine | https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/libraries/CommandLine/CommandLine.js
-* @version 0.0.4
+* @version 0.0.5
 */
 
 let CommandLine = GL.lib("CommandLine")
@@ -128,6 +128,48 @@ GL.addEventListener("loadEnd", () => {
             }
         }
     }
+
+    
+
+    //Channelmap
+    /*
+    CommandLine.addCommand(
+        "/channelmap",
+        {},
+        () => {
+            let channels = {}
+            //channel menu
+            //build channel map
+            for (device of window.stores.phaser.scene.worldManager.devices.allDevices) {
+                for (option in device.options) {
+                    // Is the device option channel-related
+                    isAChannel = false
+                    optionName = ""
+                    channelName = ""
+                    
+                    for (o of device.deviceOption.optionSchema.options) {
+                        if (o.option.props) {
+                            if (o.key == option && o.option.props.category == "channel") {
+                                isAChannel = true
+                                //find the channel name and option name
+                                optionName = o.option.label
+                                channelName = device.options[option]
+                            }
+                        }
+                    }
+
+                    if (isAChannel) {
+                        if (!Object.keys(channels).includes(channelName)) {channels[channelName] = {}}
+                        if (!Object.keys(channels[channelName]).includes(optionName)) {channels[channelName][optionName] = []}
+                        channels[channelName][optionName].push(device.id)
+                    }
+                }
+            }
+
+            
+        }
+    )
+    */
 
     //STACK
     CommandLine.addCommand(
@@ -324,6 +366,9 @@ GL.addEventListener("loadEnd", () => {
                 let deviceDepth = device.layers.depth
                 if (option == "by") {
                     deviceOptions.prop.Scale *= amount
+                    deviceOptions.barrier.height *= amount
+                    deviceOptions.barrier.width *= amount
+                    deviceOptions.barrier.radius *= amount
                 } else {
                     deviceOptions.prop.Scale = amount
                 }
@@ -345,9 +390,10 @@ GL.addEventListener("loadEnd", () => {
     )
 
     //i (my favorite command)
+    // try fixing by checking if nimimumRoleLevel is undefined
     let deviceNames = {}
     for (let device of Array.from(window.stores.worldOptions.deviceOptions)) {
-        if (device.minimumRoleLevel != 90 && device.initialMemoryCost > 0) {
+        if (device.minimumRoleLevel == undefined) {//device.minimumRoleLevel != 90 && device.initialMemoryCost > 0) {
             deviceNames[device.name.replaceAll(" ", "_").toLowerCase()] = device.id
         }
     }
@@ -471,7 +517,7 @@ GL.addEventListener("loadEnd", () => {
                     "gravity": 0,
                     "velocity": {
                         "x": 0,
-                        "y": 0.257999986410141
+                        "y": 0
                     },
                     "movement": {
                         "direction": "none",
@@ -502,3 +548,53 @@ GL.addEventListener("loadEnd", () => {
         }
     )
 })
+
+//ClickTP
+onmousedown = function(e) {
+    var xy
+    var zoom
+    var savedMapStyle
+    var savedSpeed
+    if (e.shiftKey) {
+        xy = window.stores.phaser.scene.inputManager.getMouseWorldXY()
+
+        //have to save the speed, zoom, and mapstyle because they need to be changed for the teleport
+        zoom = window.stores.phaser.scene.cameras.cameras[0].zoom
+        savedSpeed =  window.stores.me.movementSpeed
+        savedMapStyle = window.stores.session.mapStyle
+        window.stores.me.movementSpeed = 0
+        window.stores.session.mapStyle = "topDown"
+        window.stores.phaser.mainCharacter.physics.setServerPosition({
+            teleport: true,
+            x: xy["x"],
+            y: xy["y"],
+            packet: 1,
+            jsonState: {
+                "gravity": 0,
+                "velocity": {
+                    "x": 0,
+                    "y": 0
+                },
+                "movement": {
+                    "direction": "none",
+                    "xVelocity": 0,
+                    "accelerationTicks": 0
+                },
+                "jump": {
+                    "isJumping": false,
+                    "jumpsLeft": 1,
+                    "jumpCounter": 0,
+                    "jumpTicks": 0,
+                    "xVelocityAtJumpStart": 0
+                },
+                "forces": [],
+                "grounded": false,
+                "groundedTicks": 0,
+                "lastGroundedAngle": 0
+            }
+        })
+        window.stores.me.editing.preferences.cameraZoom = zoom/1.5
+        window.stores.me.movementSpeed = savedSpeed
+        window.stores.session.mapStyle = savedMapStyle
+    }
+}
