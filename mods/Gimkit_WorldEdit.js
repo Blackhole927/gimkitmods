@@ -564,6 +564,8 @@ onmousedown = function(e) {
         savedMapStyle = window.stores.session.mapStyle
         window.stores.me.movementSpeed = 0
         window.stores.session.mapStyle = "topDown"
+
+        //teleport
         window.stores.phaser.mainCharacter.physics.setServerPosition({
             teleport: true,
             x: xy["x"],
@@ -593,7 +595,7 @@ onmousedown = function(e) {
                 "lastGroundedAngle": 0
             }
         })
-        window.stores.me.editing.preferences.cameraZoom = zoom/1.5
+        window.stores.me.editing.preferences.cameraZoom = zoom/1.86
         window.stores.me.movementSpeed = savedSpeed
         window.stores.session.mapStyle = savedMapStyle
     }
