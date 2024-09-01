@@ -7,6 +7,7 @@
 * @version 0.0.5
 */
 
+let mobx = GL.lib("MobxUtils");
 let CommandLine = GL.lib("CommandLine")
 let err;
 
@@ -550,6 +551,10 @@ GL.addEventListener("loadEnd", () => {
 })
 
 //ClickTP
+//note
+//can't teleport without zoom doing weird things
+//figure out how to convert zoom slider to actual zoom
+/*
 onmousedown = function(e) {
     var xy
     var zoom
@@ -600,3 +605,46 @@ onmousedown = function(e) {
         window.stores.session.mapStyle = savedMapStyle
     }
 }
+*/
+
+//Bigger Eraser
+//CREDIT- TheLazySquid
+//he wrote this whole function
+mobx.interceptObserver("InjectExample", (str) => str.includes("Eraser Size"), (fn) => {
+    let newFn = function() {
+        let res = fn.apply(this, arguments);
+    
+        let children = res?.props?.children?.props?.children?.[2]?.props?.children?.[1]?.props?.children;
+        
+        if(!children) return res;
+        if(!children[0].key === 'remove-tiles-eraser-size-1') return res;
+        
+        let newEl = GL.React.createElement(children[0].type, { value: 4 }, 4);
+        children.push(newEl);
+        let newEl2 = GL.React.createElement(children[0].type, { value: 5 }, 5);
+        children.push(newEl2);
+        
+        return res;
+    }
+  
+    return newFn;
+})
+
+//Bigger Terrain Placement
+mobx.interceptObserver("InjectExample", (str) => str.includes("Brush Size"), (fn) => {
+    let newFn = function() {
+        let res = fn.apply(this, arguments);
+    
+        let children = res?.props?.children?.props?.children?.props?.children[0]?.props?.children[1]?.props?.children[1]?.props?.children?.props?.children
+        if(!children) return res;
+        if(!children[0].key === 'terrain-brush-size-0') return res;
+
+        let newEl = GL.React.createElement(children[0].type, { value: 5 }, 5);
+        children.push(newEl);
+        
+        return res;
+    }
+  
+    return newFn;
+})
+
