@@ -6,23 +6,16 @@
 * @needsLib CommandLine | https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/libraries/CommandLine/CommandLine.js
 * @needsLib MobxUtils | https://raw.githubusercontent.com/TheLazySquid/Gimloader/main/libraries/MobxUtils.js
 
-* @version 0.0.6
+* @version 0.0.7
 */
 
 let mobx = GL.lib("MobxUtils");
 let CommandLine = GL.lib("CommandLine")
 let err;
 
-/*
 
-CommandLine.addCommand(
-    "tcollision",
-    [],
-    () => {
-        window.stores.network.room.send("TOGGLE_PHASE", {enabled: !window.stores.me.phase})
-    }
-)
-*/
+
+
 
 GL.addEventListener("loadEnd", () => {
     // placeDevice function and deviceOptions
@@ -389,6 +382,7 @@ GL.addEventListener("loadEnd", () => {
         [{"speedValue" : "number"}],
         (number) => {
             window.stores.me.movementSpeed = 310*number
+            window.stores.me.editing.preferences.movementSpeed = number
         }
     )
 
@@ -550,6 +544,53 @@ GL.addEventListener("loadEnd", () => {
             CommandLine.editCommand("/tp", [{"to" : playerNames}])
         }
     )
+
+    //COLLISION
+    CommandLine.addCommand(
+        "collision",
+        [{"toggle" : ["on", "off"]}],
+        (toggle) => {
+            if (toggle == "on") {
+                window.stores.network.room.send("TOGGLE_PHASE", {enabled: false})
+                window.stores.me.editing.preferences.phase = false
+            } else {
+                window.stores.network.room.send("TOGGLE_PHASE", {enabled: true})
+                window.stores.me.editing.preferences.phase = true
+            }
+        }
+    )
+
+
+    //Autosaving some editing options
+    var editorOptions = GL.storage.getValue("Gimkit Worldedit", "EditorOptions", "n/a")
+    var oldEditorOptions = editorOptions
+    
+    if (editorOptions == "n/a") {
+        editorOptions = {"phase" : true, "speed" : 1}
+        oldEditorOptions = editorOptions
+        GL.storage.setValue("Gimkit Worldedit", "EditorOptions", editorOptions)
+    } else {
+        window.stores.network.room.send("TOGGLE_PHASE", {enabled: editorOptions.phase})
+        window.stores.me.movementSpeed = 310*editorOptions.speed
+    }
+    
+    setInterval(()=>{
+        var phase = oldEditorOptions.phase
+        var speed = oldEditorOptions.speed
+      
+        if (window.stores.me.editing.preferences.phase != null)
+            {phase = window.stores.me.editing.preferences.phase}
+        if (window.stores.me.editing.preferences.movementSpeed != null)
+            {speed = window.stores.me.editing.preferences.movementSpeed}
+      
+        editorOptions = {
+            "phase" : phase,
+            "speed" : speed
+        }
+        GL.storage.setValue("Gimkit Worldedit", "EditorOptions", editorOptions)
+    }, 1000)
+
+
 })
 
 //ClickTP
