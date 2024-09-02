@@ -4,6 +4,8 @@
 * @author Blackhole927
 * @downloadUrl https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/mods/Gimkit_WorldEdit.js
 * @needsLib CommandLine | https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/libraries/CommandLine/CommandLine.js
+* @needsLib MobxUtils | https://raw.githubusercontent.com/TheLazySquid/Gimloader/main/libraries/MobxUtils.js
+
 * @version 0.0.6
 */
 
