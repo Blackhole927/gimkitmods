@@ -27,3 +27,9 @@ Sets your zoom to an amount. Smaller numbers = bigger zoom. Only processed numbe
 
 ## /tp to
 Teleport to another player in the editor!
+
+## perms permission set
+Set the editing permissions in the GKC editor!
+
+## game toggle
+Start/stop the game with a command!
