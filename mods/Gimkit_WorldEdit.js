@@ -6,7 +6,7 @@
 * @needsLib CommandLine | https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/libraries/CommandLine/CommandLine.js
 * @needsLib MobxUtils | https://raw.githubusercontent.com/TheLazySquid/Gimloader/main/libraries/MobxUtils.js
 
-* @version 0.0.7
+* @version 0.0.8
 */
 
 let mobx = GL.lib("MobxUtils");
@@ -18,6 +18,16 @@ let err;
 
 
 GL.addEventListener("loadEnd", () => {
+    //notification function
+    function notification(title, description, placement, type) {
+        window.stores.network.room.onMessageHandlers.events.NOTIFICATION[0]({
+            "title":title,
+            "placement":placement,
+            "description":description,
+            "type":type
+        })
+    }
+
     // placeDevice function and deviceOptions
     function nanoID() {
         let charset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-";
@@ -52,7 +62,7 @@ GL.addEventListener("loadEnd", () => {
     let deviceOptions = {}
     resetDeviceOptions()
 
-    //see all of the messages the client sends
+    //see all of the messages the client sendsaw
     const sendMessage = window.stores.network.room.send.bind(window.stores.network.room)
     window.stores.network.room.send = (t, n) => {
         onMessage(t,n)
@@ -166,6 +176,63 @@ GL.addEventListener("loadEnd", () => {
         }
     )
     */
+
+    //GAME START/END
+    CommandLine.addCommand(
+        "/game",
+        [
+            {" " : ["start", "end"]}
+        ],
+        (toggle) => {
+            if (toggle == "start") {
+                window.stores.network.room.send("START_GAME", {})
+            } else {
+                window.stores.network.room.send("END_GAME", {})
+            }
+        }
+    )
+
+    //PERMISSIONS
+    CommandLine.addCommand(
+        "/perms",
+        [
+            {"permission" : ["adding", "removing", "editing", "blocks", "all"]},
+            {"set": ["on", "off"]}
+        ],
+        (permission, set) => {
+            if (set == "on") {set = true}
+            else {set = false}
+
+            let data = {
+                adding: window.stores.session.globalPermissions.adding,
+                removing: window.stores.session.globalPermissions.removing,
+                editing: window.stores.session.globalPermissions.editing,
+                manageCodeGrids: window.stores.session.globalPermissions.manageCodeGrids
+            }
+            if (permission == "removing") {data["removing"] = set}
+            if (permission == "adding") {data["adding"] = set}
+            if (permission == "editing") {data["editing"] = set}
+            if (permission == "blocks") {data["manageCodeGrids"] = set}
+            if (permission == "all") {
+                data = {
+                    adding: set,
+                    removing: set,
+                    editing: set,
+                    manageCodeGrids: set
+                }
+            }
+            window.stores.network.room.send("SET_GLOBAL_PERMISSIONS", data)
+            if (set == true) {set = "enabled."}
+            else {set = "disabled."}
+
+            if (permission == "all") {
+                notification("Permission Set", "All permissions have been " + set, "topRight", "success")
+            } else {
+                notification("Permission Set", "The " + permission + " permission has been " + set, "topRight", "success")
+            }
+            
+        }
+    )
 
     //STACK
     CommandLine.addCommand(
