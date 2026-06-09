@@ -20,7 +20,7 @@ let err;
 api.net.onLoad(() => {
     //notification function
     function notification(title, description, placement, type) {
-        window.stores.network.room.onMessageHandlers.events.NOTIFICATION[0]({
+        api.stores.network.room.onMessageHandlers.events.NOTIFICATION[0]({
             "title":title,
             "placement":placement,
             "description":description,
@@ -47,10 +47,10 @@ api.net.onLoad(() => {
             y: y,
             depth: depth
         }
-        window.stores.network.room.send("PLACE_DEVICE", data)
+        api.stores.network.room.send("PLACE_DEVICE", data)
     }
     function resetDeviceOptions() {
-        for (let device of Array.from(window.stores.worldOptions.deviceOptions)) {
+        for (let device of Array.from(api.stores.worldOptions.deviceOptions)) {
             let data = Array.from(device.optionSchema.options)
             let newData = {}
             for (let option of data) {
@@ -63,8 +63,8 @@ api.net.onLoad(() => {
     resetDeviceOptions()
 
     //see all of the messages the client sendsaw
-    const sendMessage = window.stores.network.room.send.bind(window.stores.network.room)
-    window.stores.network.room.send = (t, n) => {
+    const sendMessage = api.stores.network.room.send.bind(api.stores.network.room)
+    api.stores.network.room.send = (t, n) => {
         onMessage(t,n)
         sendMessage(t,n)
     }
@@ -82,7 +82,7 @@ api.net.onLoad(() => {
                 if (n.copyingFromExistingDevice != mainCopiedDeviceID) {
                     copiedDeviceChunk = []
                     mainCopiedDeviceID = n.copyingFromExistingDevice
-                    selection = window.stores.phaser.scene.actionManager.multiselect.selectedDevices
+                    selection = api.stores.phaser.scene.actionManager.multiselect.selectedDevices
                     IDMAP = {}
                     wires = []
                 }
@@ -100,7 +100,7 @@ api.net.onLoad(() => {
                     }
     
                     // generate a wire map of the old devices
-                    for (let wire of window.stores.phaser.scene.worldManager.wires.wires) {
+                    for (let wire of api.stores.phaser.scene.worldManager.wires.wires) {
                         let device1 = wire[0].slice(0, 21)
                         let device2 = wire[0].slice(22, 43)
                     
@@ -126,7 +126,7 @@ api.net.onLoad(() => {
                         }
                     
                         setTimeout(()=>{
-                            window.stores.network.room.send("PLACE_WIRE", wireData)
+                            api.stores.network.room.send("PLACE_WIRE", wireData)
                         },100)
                     }
                     
@@ -146,7 +146,7 @@ api.net.onLoad(() => {
             let channels = {}
             //channel menu
             //build channel map
-            for (device of window.stores.phaser.scene.worldManager.devices.allDevices) {
+            for (device of api.stores.phaser.scene.worldManager.devices.allDevices) {
                 for (option in device.options) {
                     // Is the device option channel-related
                     isAChannel = false
@@ -185,9 +185,9 @@ api.net.onLoad(() => {
         ],
         (toggle) => {
             if (toggle == "start") {
-                window.stores.network.room.send("START_GAME", {})
+                api.stores.network.room.send("START_GAME", {})
             } else {
-                window.stores.network.room.send("END_GAME", {})
+                api.stores.network.room.send("END_GAME", {})
             }
         }
     )
@@ -204,10 +204,10 @@ api.net.onLoad(() => {
             else {set = false}
 
             let data = {
-                adding: window.stores.session.globalPermissions.adding,
-                removing: window.stores.session.globalPermissions.removing,
-                editing: window.stores.session.globalPermissions.editing,
-                manageCodeGrids: window.stores.session.globalPermissions.manageCodeGrids
+                adding: api.stores.session.globalPermissions.adding,
+                removing: api.stores.session.globalPermissions.removing,
+                editing: api.stores.session.globalPermissions.editing,
+                manageCodeGrids: api.stores.session.globalPermissions.manageCodeGrids
             }
             if (permission == "removing") {data["removing"] = set}
             if (permission == "adding") {data["adding"] = set}
@@ -221,7 +221,7 @@ api.net.onLoad(() => {
                     manageCodeGrids: set
                 }
             }
-            window.stores.network.room.send("SET_GLOBAL_PERMISSIONS", data)
+            api.stores.network.room.send("SET_GLOBAL_PERMISSIONS", data)
             if (set == true) {set = "enabled."}
             else {set = "disabled."}
 
@@ -244,7 +244,7 @@ api.net.onLoad(() => {
         ],
         (dir, amount, spacing) => {
             try {
-                let phaser = window.stores.phaser
+                let phaser = api.stores.phaser
                 spacing = spacing*64;
                 
                 //selection
@@ -307,7 +307,7 @@ api.net.onLoad(() => {
         "align",
         [{"axis" : ["x", "y"]}],
         (axis) => {
-            let phaser = window.stores.phaser;
+            let phaser = api.stores.phaser;
             //selection
             let selection = phaser.scene.actionManager.multiselect.selectedDevices
         
@@ -348,7 +348,7 @@ api.net.onLoad(() => {
         "flip",
         [{"coordinate" : ["x", "y"]}],
         (coordinate)=>{
-            let phaser = window.stores.phaser
+            let phaser = api.stores.phaser
             //selection
             let selection = phaser.scene.actionManager.multiselect.selectedDevices
         
@@ -410,7 +410,7 @@ api.net.onLoad(() => {
         (option, amount) => {
             amount = parseFloat(amount)
             //selection
-            let phaser = window.stores.phaser
+            let phaser = api.stores.phaser
             let selection = phaser.scene.actionManager.multiselect.selectedDevices
 
             //Get the Coords of each device
@@ -448,15 +448,15 @@ api.net.onLoad(() => {
         "speed",
         [{"speedValue" : "number"}],
         (number) => {
-            window.stores.me.movementSpeed = 310*number
-            window.stores.me.editing.preferences.movementSpeed = number
+            api.stores.me.movementSpeed = 310*number
+            api.stores.me.editing.preferences.movementSpeed = number
         }
     )
 
     //i (my favorite command)
     // try fixing by checking if nimimumRoleLevel is undefined
     let deviceNames = {}
-    for (let device of Array.from(window.stores.worldOptions.deviceOptions)) {
+    for (let device of Array.from(api.stores.worldOptions.deviceOptions)) {
         if (device.minimumRoleLevel == undefined) {//device.minimumRoleLevel != 90 && device.initialMemoryCost > 0) {
             deviceNames[device.name.replaceAll(" ", "_").toLowerCase()] = device.id
         }
@@ -465,7 +465,7 @@ api.net.onLoad(() => {
         "/i",
         [{"device name": Object.keys(deviceNames)}],
         (deviceName) => {
-            let phaser = window.stores.phaser
+            let phaser = api.stores.phaser
             resetDeviceOptions()
             placeDevice(
                 deviceNames[deviceName],
@@ -489,7 +489,7 @@ api.net.onLoad(() => {
             console.log(value);
         },
         () => {
-            let phaser = window.stores.phaser
+            let phaser = api.stores.phaser
             let selection = phaser.scene.actionManager.multiselect.selectedDevices
             let deviceID = selection[0].deviceOption.id
             let canRun = true;
@@ -530,7 +530,7 @@ api.net.onLoad(() => {
         (deviceID) => {
             if (deviceID != "prop") {deviceID = deviceNames[deviceID]}
             let filter = deviceID
-            let phaser = window.stores.phaser;
+            let phaser = api.stores.phaser;
             let selection = phaser.scene.actionManager.multiselect.selectedDevices;
             let newSelection = []
             for (let i=0;i<selection.length;i++) {
@@ -553,7 +553,7 @@ api.net.onLoad(() => {
         (amount)=> {
             if (amount < 0.3){amount = 0.3}
             if (amount > 4){amount = 4}
-            window.stores.phaser.scene.cameras.cameras[0].setZoom(parseFloat(amount))
+            api.stores.phaser.scene.cameras.cameras[0].setZoom(parseFloat(amount))
         }
     )
 
@@ -565,14 +565,14 @@ api.net.onLoad(() => {
             let name = player.replaceAll("_", " ")
             let x = 0
             let y = 0
-            for (let character of Array.from(window.stores.phaser.scene.characterManager.characters)) {
+            for (let character of Array.from(api.stores.phaser.scene.characterManager.characters)) {
                 if (character[1].nametag.name == name) {
                     x = character[1].body.x
                     y = character[1].body.y
                 }
             }
             // no, this does not work in game lmao
-            window.stores.phaser.mainCharacter.physics.setServerPosition({
+            api.stores.phaser.mainCharacter.physics.setServerPosition({
                 teleport: true,
                 x: x,
                 y: y,
@@ -604,7 +604,7 @@ api.net.onLoad(() => {
         },
         ()=>{
             let playerNames = [];
-            for (let character of Array.from(window.stores.phaser.scene.characterManager.characters)) {
+            for (let character of Array.from(api.stores.phaser.scene.characterManager.characters)) {
                 playerNames.push(character[1].nametag.name.replaceAll(" ", "_"))
             }
             
@@ -618,11 +618,11 @@ api.net.onLoad(() => {
         [{"toggle" : ["on", "off"]}],
         (toggle) => {
             if (toggle == "on") {
-                window.stores.network.room.send("TOGGLE_PHASE", {enabled: false})
-                window.stores.me.editing.preferences.phase = false
+                api.stores.network.room.send("TOGGLE_PHASE", {enabled: false})
+                api.stores.me.editing.preferences.phase = false
             } else {
-                window.stores.network.room.send("TOGGLE_PHASE", {enabled: true})
-                window.stores.me.editing.preferences.phase = true
+                api.stores.network.room.send("TOGGLE_PHASE", {enabled: true})
+                api.stores.me.editing.preferences.phase = true
             }
         }
     )
@@ -637,18 +637,18 @@ api.net.onLoad(() => {
         oldEditorOptions = editorOptions
         api.storage.setValue("EditorOptions", editorOptions)
     } else {
-        window.stores.network.room.send("TOGGLE_PHASE", {enabled: editorOptions.phase})
-        window.stores.me.movementSpeed = 310*editorOptions.speed
+        api.stores.network.room.send("TOGGLE_PHASE", {enabled: editorOptions.phase})
+        api.stores.me.movementSpeed = 310*editorOptions.speed
     }
     
     setInterval(()=>{
         var phase = oldEditorOptions.phase
         var speed = oldEditorOptions.speed
       
-        if (window.stores.me.editing.preferences.phase != null)
-            {phase = window.stores.me.editing.preferences.phase}
-        if (window.stores.me.editing.preferences.movementSpeed != null)
-            {speed = window.stores.me.editing.preferences.movementSpeed}
+        if (api.stores.me.editing.preferences.phase != null)
+            {phase = api.stores.me.editing.preferences.phase}
+        if (api.stores.me.editing.preferences.movementSpeed != null)
+            {speed = api.stores.me.editing.preferences.movementSpeed}
       
         editorOptions = {
             "phase" : phase,
@@ -671,17 +671,17 @@ onmousedown = function(e) {
     var savedMapStyle
     var savedSpeed
     if (e.shiftKey) {
-        xy = window.stores.phaser.scene.inputManager.getMouseWorldXY()
+        xy = api.stores.phaser.scene.inputManager.getMouseWorldXY()
 
         //have to save the speed, zoom, and mapstyle because they need to be changed for the teleport
-        zoom = window.stores.phaser.scene.cameras.cameras[0].zoom
-        savedSpeed =  window.stores.me.movementSpeed
-        savedMapStyle = window.stores.session.mapStyle
-        window.stores.me.movementSpeed = 0
-        window.stores.session.mapStyle = "topDown"
+        zoom = api.stores.phaser.scene.cameras.cameras[0].zoom
+        savedSpeed =  api.stores.me.movementSpeed
+        savedMapStyle = api.stores.session.mapStyle
+        api.stores.me.movementSpeed = 0
+        api.stores.session.mapStyle = "topDown"
 
         //teleport
-        window.stores.phaser.mainCharacter.physics.setServerPosition({
+        api.stores.phaser.mainCharacter.physics.setServerPosition({
             teleport: true,
             x: xy["x"],
             y: xy["y"],
@@ -710,9 +710,9 @@ onmousedown = function(e) {
                 "lastGroundedAngle": 0
             }
         })
-        window.stores.me.editing.preferences.cameraZoom = zoom/1.86
-        window.stores.me.movementSpeed = savedSpeed
-        window.stores.session.mapStyle = savedMapStyle
+        api.stores.me.editing.preferences.cameraZoom = zoom/1.86
+        api.stores.me.movementSpeed = savedSpeed
+        api.stores.session.mapStyle = savedMapStyle
     }
 }
 */

@@ -144,7 +144,7 @@ api.net.onLoad(() => {
         textInput.style.bottom = 0;
         textInput.value = "/";
         textInput.focus();
-        window.stores.phaser.scene.inputManager.isListeningForInput = false;
+        api.stores.phaser.scene.inputManager.isListeningForInput = false;
         commandlineOpen = true;
         textValue = "/"
         suggestor.style.color = "#fff";
@@ -184,7 +184,7 @@ api.net.onLoad(() => {
         suggestorHighlight.style.opacity = 0;
         suggestor.style.opacity = 0;
         textInput.style.bottom = "-5rem";
-        window.stores.phaser.scene.inputManager.isListeningForInput = true;
+        api.stores.phaser.scene.inputManager.isListeningForInput = true;
         commandlineOpen = false;
     }
 
@@ -486,7 +486,7 @@ export function displayNotification(placement, title, description, type, duratio
         type:type, //error, warning, success, info
         duration:duration //in seconds
     }
-    window.stores.network.room.onMessageHandlers.events.NOTIFICATION[0](notif)
+    api.stores.network.room.onMessageHandlers.events.NOTIFICATION[0](notif)
 }
 
 // add a command to the commandline
