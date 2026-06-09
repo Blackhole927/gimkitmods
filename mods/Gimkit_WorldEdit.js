@@ -1,23 +1,23 @@
 /**
-* @name Gimkit WorldEdit
+* @name Gimkit Worldedit
 * @description A mod designed to make building in GKC easier!
 * @author Blackhole927
 * @downloadUrl https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/mods/Gimkit_WorldEdit.js
 * @needsLib CommandLine | https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/libraries/CommandLine/CommandLine.js
 * @needsLib MobxUtils | https://raw.githubusercontent.com/TheLazySquid/Gimloader/main/libraries/MobxUtils.js
-
-* @version 0.0.8
+* @version 0.0.9
+* @gamemode creative
 */
 
-let mobx = GL.lib("MobxUtils");
-let CommandLine = GL.lib("CommandLine")
+let mobx = api.lib("MobxUtils");
+let CommandLine = api.lib("CommandLine")
 let err;
 
 
 
 
 
-GL.addEventListener("loadEnd", () => {
+api.net.onLoad(() => {
     //notification function
     function notification(title, description, placement, type) {
         window.stores.network.room.onMessageHandlers.events.NOTIFICATION[0]({
@@ -629,13 +629,13 @@ GL.addEventListener("loadEnd", () => {
 
 
     //Autosaving some editing options
-    var editorOptions = GL.storage.getValue("Gimkit Worldedit", "EditorOptions", "n/a")
+    var editorOptions = api.storage.getValue("EditorOptions", "n/a")
     var oldEditorOptions = editorOptions
     
     if (editorOptions == "n/a") {
         editorOptions = {"phase" : true, "speed" : 1}
         oldEditorOptions = editorOptions
-        GL.storage.setValue("Gimkit Worldedit", "EditorOptions", editorOptions)
+        api.storage.setValue("EditorOptions", editorOptions)
     } else {
         window.stores.network.room.send("TOGGLE_PHASE", {enabled: editorOptions.phase})
         window.stores.me.movementSpeed = 310*editorOptions.speed
@@ -654,7 +654,7 @@ GL.addEventListener("loadEnd", () => {
             "phase" : phase,
             "speed" : speed
         }
-        GL.storage.setValue("Gimkit Worldedit", "EditorOptions", editorOptions)
+        api.storage.setValue("EditorOptions", editorOptions)
     }, 1000)
 
 
@@ -729,9 +729,9 @@ mobx.interceptObserver("InjectExample", (str) => str.includes("Eraser Size"), (f
         if(!children) return res;
         if(!children[0].key === 'remove-tiles-eraser-size-1') return res;
         
-        let newEl = GL.React.createElement(children[0].type, { value: 4 }, 4);
+        let newEl = api.React.createElement(children[0].type, { value: 4 }, 4);
         children.push(newEl);
-        let newEl2 = GL.React.createElement(children[0].type, { value: 5 }, 5);
+        let newEl2 = api.React.createElement(children[0].type, { value: 5 }, 5);
         children.push(newEl2);
         
         return res;
@@ -749,7 +749,7 @@ mobx.interceptObserver("InjectExample", (str) => str.includes("Brush Size"), (fn
         if(!children) return res;
         if(!children[0].key === 'terrain-brush-size-0') return res;
 
-        let newEl = GL.React.createElement(children[0].type, { value: 5 }, 5);
+        let newEl = api.React.createElement(children[0].type, { value: 5 }, 5);
         children.push(newEl);
         
         return res;

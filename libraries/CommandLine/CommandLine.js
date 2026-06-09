@@ -4,7 +4,7 @@
 * @author Blackhole927
 * @isLibrary true
 * @downloadUrl https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/libraries/CommandLine/CommandLine.js
-* @version 0.0.2
+* @version 0.0.3
 */
 
 let commandlineOpen = false;
@@ -40,7 +40,7 @@ let err;
 let suggestorScroll = 0;
 let trueSuggestorLength = 0;
 
-GL.addEventListener("loadEnd", () => {
+api.net.onLoad(() => {
     commandlineOpen = false;
     // this solution is actually hilarious vvv
     document.body.style.backgroundColor = "#000";
@@ -190,7 +190,7 @@ GL.addEventListener("loadEnd", () => {
 
     // open / close
     document.addEventListener('keydown', (event) => {
-        if  (GL.stores != undefined) {
+        if  (api.stores != undefined) {
             if (event.key === commandlineTrigger) {
                 setTimeout(enableCommandline,11)
             }
