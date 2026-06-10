@@ -4,7 +4,7 @@
 * @author Blackhole927
 * @isLibrary true
 * @downloadUrl https://raw.githubusercontent.com/Blackhole927/gimkitmods/main/libraries/CommandLine/CommandLine.js
-* @version 0.0.2
+* @version 0.0.3
 */
 
 let commandlineOpen = false;
@@ -40,7 +40,7 @@ let err;
 let suggestorScroll = 0;
 let trueSuggestorLength = 0;
 
-GL.addEventListener("loadEnd", () => {
+api.net.onLoad(() => {
     commandlineOpen = false;
     // this solution is actually hilarious vvv
     document.body.style.backgroundColor = "#000";
@@ -144,7 +144,7 @@ GL.addEventListener("loadEnd", () => {
         textInput.style.bottom = 0;
         textInput.value = "/";
         textInput.focus();
-        window.stores.phaser.scene.inputManager.isListeningForInput = false;
+        api.stores.phaser.scene.inputManager.isListeningForInput = false;
         commandlineOpen = true;
         textValue = "/"
         suggestor.style.color = "#fff";
@@ -184,13 +184,13 @@ GL.addEventListener("loadEnd", () => {
         suggestorHighlight.style.opacity = 0;
         suggestor.style.opacity = 0;
         textInput.style.bottom = "-5rem";
-        window.stores.phaser.scene.inputManager.isListeningForInput = true;
+        api.stores.phaser.scene.inputManager.isListeningForInput = true;
         commandlineOpen = false;
     }
 
     // open / close
     document.addEventListener('keydown', (event) => {
-        if  (GL.stores != undefined) {
+        if  (api.stores != undefined) {
             if (event.key === commandlineTrigger) {
                 setTimeout(enableCommandline,11)
             }
@@ -486,7 +486,7 @@ export function displayNotification(placement, title, description, type, duratio
         type:type, //error, warning, success, info
         duration:duration //in seconds
     }
-    window.stores.network.room.onMessageHandlers.events.NOTIFICATION[0](notif)
+    api.stores.network.room.onMessageHandlers.events.NOTIFICATION[0](notif)
 }
 
 // add a command to the commandline
